@@ -1,0 +1,67 @@
+---
+
+- name: Ensure backup scripts folder exists.
+  ansible.builtin.file:
+    path: "{{ backup_conf_path }}"
+    state: directory
+    owner: "{{ backup_user }}"
+    group: "{{ backup_group }}"
+    mode: "0775"
+  become: true
+
+- name: Ensure log folder exists.
+  ansible.builtin.file:
+    path: "{{ backup_log_base_path }}"
+    state: directory
+    owner: "{{ backup_user }}"
+    group: "{{ backup_group }}"
+    mode: "0775"
+  when: backup_log_base_path
+
+- name: "Ensure local backup folder exists: {{ backup_remote_base_path ~ '/' ~ backup_identifier_suffix }}"
+  ansible.builtin.file:
+    path: "{{ backup_remote_base_path }}"
+    state: directory
+    owner: "{{ backup_user }}"
+    group: "{{ backup_group }}"
+    mode: "0775"
+  when: backup_is_local
+
+- name: "Template backup script to server: {{ backup_conf_name }}"
+  ansible.builtin.template:
+    src: "backup-{{ backup_mode }}.sh.j2"
+    dest: "{{ backup_conf_path }}/{{ backup_conf_name }}.sh"
+    owner: "{{ backup_user }}"
+    group: "{{ backup_group }}"
+    mode: "0744"
+
+- name: "Template excludes file to server: {{ backup_exclude_name ~ '-exclude' }}"
+  ansible.builtin.template:
+    src: backup-exclude.txt.j2
+    dest: "{{ backup_conf_path }}/{{ backup_exclude_name }}-{{ backup_mode }}-exclude.txt"
+    owner: "{{ backup_user }}"
+    group: "{{ backup_group }}"
+    mode: "0644"
+
+- name: Configure backup cron job.
+  ansible.builtin.cron:
+    name:      "Backup cron job: {{ backup_conf_name }}"
+    job:       "{{ backup_conf_path }}/{{ backup_conf_name }}.sh"
+    cron_file: "{{ backup_cron_use_file | default(false) | ternary(backup_conf_name, omit) }}"
+    user:      "{{ backup_user }}"
+    minute: "{{ backup_cron_minute }}"
+    hour:   "{{ backup_cron_hour }}"
+    day:    "{{ backup_cron_day }}"
+    month:  "{{ backup_cron_month }}"
+    dow:    "{{ backup_cron_dow }}"
+    state:  "{{ backup_cron_state }}"
+  become: "{{ backup_cron_use_file | default(false) }}"
+
+- name: Add backup remote host key to server.
+  ansible.builtin.known_hosts:
+    path: "~/.ssh/known_hosts"
+    name: "{{ backup_remote_host_name }}"
+    key: "{{ backup_remote_host_name }} {{ backup_remote_host_key }}"
+  when:
+    - backup_remote_host_name
+    - backup_remote_host_key

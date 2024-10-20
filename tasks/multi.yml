@@ -1,0 +1,27 @@
+---
+
+- name: Override backup_item vars
+  ansible.builtin.set_fact:
+    "{{ _var.key }}__orig": "{{ vars[_var.key] | default(omit) }}" # noqa: var-naming[no-jinja]
+    "{{ _var.key }}":       "{{ _var.value }}"                     # noqa: var-naming[no-jinja]
+  loop: "{{ backup_item | dict2items }}"
+  loop_control:
+    loop_var: _var
+  changed_when:
+    (  vars[_var.key] is not defined)
+    or vars[_var.key] != _var.value
+
+
+- name: "Init Backup script: {{ backup_conf_name }}"
+  ansible.builtin.include_tasks: main.yml
+
+
+- name: Reset backup vars
+  ansible.builtin.set_fact:
+    "{{ _key }}": "{{ vars[_key ~ '__orig'] | default(None) }}" # noqa: var-naming[no-jinja]
+  loop: "{{ backup_item.keys() }}"
+  loop_control:
+    loop_var: _key
+  changed_when:
+    (  vars[_key ~ '__orig'] is not defined)
+    or vars[_key ~ '__orig'] != vars[_key]

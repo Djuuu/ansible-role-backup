@@ -1,0 +1,66 @@
+#jinja2: trim_blocks: True, lstrip_blocks: True
+#!/bin/bash
+#
+# {{ ansible_managed }}
+#
+# Backup for simple servers - shell script.
+#
+# @author Julien Tardot, 2024
+
+
+# Common variables
+
+BACKUP_USER={{ backup_user }}
+BACKUP_GROUP={{ backup_group }}
+
+ARCHIVE_DIR={{ backup_remote_base_path }}/{{ backup_identifier_suffix }}
+ARCHIVE_FILE={{ backup_conf_name }}-$(date +'%Y%m%d-%H%M%S').tar.gz
+
+{% if backup_log_base_path %}
+LOGFILE={{ backup_log_base_path }}/{{ backup_conf_name }}-$(date +'%Y-%m-%d').log
+{% endif %}
+
+echo ""
+echo "# {{ backup_conf_name }}.sh"
+echo "#"
+{% for directory in backup_directories %}
+echo "#  - {{ directory }}"
+{% endfor %}
+echo "#"
+echo "#  -> {{ backup_remote_base_path }}/{{ backup_identifier_suffix }}{{ backup_conf_name }}.tar.gz"
+echo "#"
+echo ""
+
+# Start
+{% if backup_log_base_path %}
+echo -e "$(date +'%Y-%m-%d %T') Backup start" | tee -a "$LOGFILE"
+{% endif %}
+
+# Backup
+{% if backup_directories | length > 0 %}
+{% if backup_privileged | default(false) %}
+sudo \
+{% endif %}
+tar \
+  --exclude-from {{ backup_conf_path }}/{{ backup_exclude_name }}-archive-exclude.txt \
+  -czf ${ARCHIVE_DIR}${ARCHIVE_FILE} \
+  {% for directory in backup_directories %}
+  "{{ directory }}" \
+  {% endfor %}
+  {% if backup_log_base_path %}  \
+  2>&1 | tee -a "$LOGFILE"
+  {% else %}
+  ;
+  {% endif %}
+
+{% if backup_privileged | default(false) %}
+sudo chown ${BACKUP_USER}:${BACKUP_GROUP} ${ARCHIVE_DIR}${ARCHIVE_FILE} 2>&1 | tee -a "$LOGFILE"
+{% endif %}
+{% endif %}
+
+# End
+{% if backup_log_base_path %}
+echo -e "\n$(date +'%Y-%m-%d %T') Backup end\n" | tee -a "$LOGFILE"
+{% endif %}
+
+#

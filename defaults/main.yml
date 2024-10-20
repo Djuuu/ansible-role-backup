@@ -1,0 +1,82 @@
+---
+
+# User under which backup jobs will run.
+backup_user: "{{ ansible_env.SUDO_USER | default(ansible_env.USER, true) | default(ansible_user_id, true) }}"
+backup_group: "{{ ansible_env.SUDO_GROUP | default(ansible_env.GROUP, true) | default(ansible_user_gid, true) }}"
+
+# Should backup use sudo?
+backup_privileged: false
+
+# Path to where backups configuration will be stored.
+backup_conf_path: /home/{{ backup_user }}/backup
+backup_conf_name: backup
+
+# Backup mode
+# - rsync: uploads to remote server
+# - archive: archive locally
+backup_mode: rsync
+
+# rsync options
+backup_rsync_path:    /usr/bin/rsync
+backup_rsync_options:
+  - --archive  # -a
+  - --stats
+  - --human-readable # -h
+backup_rsync_additional_options: []
+backup_rsync_compress: true
+backup_rsync_delete: true
+
+# Directory for backup logs
+backup_log_base_path: "{{ backup_conf_path }}/log"
+
+# Directories to back up. {{ backup_user }} must have read access to these dirs.
+backup_directories: []
+
+# Items to exclude from backups. (Use rsync 'excludes' file syntax.)
+backup_exclude_items:
+  - '.DS_Store'
+  - 'Thumbs.db'
+  - 'lost+found'
+
+backup_exclude_name: .backup                    # common exclude file: .backup-{{ backup_mode }}-exclude.txt
+#backup_exclude_name: ".{{ backup_conf_name }}" # specific exclude file
+
+# Options to control where the backup is delivered.
+backup_remote_connection: user@backup.example.com
+backup_remote_connection_ssh_options: ''
+backup_remote_base_path: "~/backups"
+backup_identifier: # optional subdirectory
+
+# Add your server's host key to ensure seamless backup functionality.
+backup_remote_host_name: ''
+backup_remote_host_key: ''
+
+# Cron options
+backup_cron_minute: '0'
+backup_cron_hour:   '3'
+backup_cron_day:    '*'
+backup_cron_month:  '*'
+backup_cron_dow:    '7'
+backup_cron_use_file: true
+backup_cron_state: absent
+# Cron state for wrapper script (see wrapper-script.yml task)
+backup_cron_wrapper_state: absent
+
+# PostgreSQL backup options
+backup_postgres_databases: []
+backup_postgres_base_path: "{{ backup_conf_path }}/db"
+backup_postgres_options:
+  - --no-password # -w
+  - --format=p    # -F c|d|t|p (custom, directory, tar, plain text (default))
+
+# Dockerized PostgreSQL options
+backup_postgres_dockerized:       false
+backup_postgres_docker_container: postgres
+
+# Multiple backup configurations can be defined, using the `multi.yml` task and the `backup_items` variable.
+# Any variable can be used in a backup item (except for the `backup_postgres_` ones).
+backup_items: []
+#  - backup_directories: [ '/some/directory', '/other/directory' ]
+#    backup_remote_base_path: /var/backup/main
+#  - backup_directories: [ '/another/directory' ]
+#    backup_remote_base_path: /var/backup/other

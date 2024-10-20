@@ -1,0 +1,55 @@
+#jinja2: trim_blocks: True, lstrip_blocks: True
+#!/bin/bash
+#
+# {{ ansible_managed }}
+#
+# Backup for simple servers - shell script.
+#
+# @author Julien Tardot, 2024
+
+
+# Common variables
+
+PG_DUMP_CMD="{{ backup_postgres_pg_dump_command }}"
+PG_OPTS="{{ backup_postgres_options | join(' ') }}"
+OUTPUT="{{ backup_postgres_base_path }}"
+
+BACKUP_USER={{ backup_user }}
+BACKUP_GROUP={{ backup_group }}
+
+{% if backup_log_base_path %}
+LOGFILE={{ backup_log_base_path }}/backup-postgres-$(date +'%Y-%m-%d').log
+{% endif %}
+
+echo ""
+echo "# backup-postgres.sh"
+echo "#"
+{% for database in backup_postgres_databases %}
+echo "#  - {{ database }}"
+{% endfor %}
+echo "#"
+echo ""
+
+# Start
+{% if backup_log_base_path %}
+echo "$(date +'%Y-%m-%d %T') Backup start" | tee -a "$LOGFILE"
+{% endif %}
+
+# Backup databases
+
+{% for database in backup_postgres_databases %}
+# - {{ database }}
+dump_file="${OUTPUT}/{{ database }}-$(date +'%Y%m%d-%H%M%S').sql"
+echo "$(date +'%Y-%m-%d %T') Backup: {{ database }}" | tee -a "$LOGFILE"
+${PG_DUMP_CMD} ${PG_OPTS} {{ database }} > ${dump_file}  2> >(tee -a "$LOGFILE" >&2)
+sudo chown ${BACKUP_USER}:${BACKUP_GROUP} ${dump_file} 2>&1 | tee -a "$LOGFILE"
+gzip ${dump_file}                                      2>&1 | tee -a "$LOGFILE"
+
+{% endfor %}
+
+# End
+{% if backup_log_base_path %}
+echo -e "$(date +'%Y-%m-%d %T') Backup end\n" | tee -a "$LOGFILE"
+{% endif %}
+
+#

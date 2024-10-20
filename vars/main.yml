@@ -1,0 +1,23 @@
+---
+
+backup_rsync_all_options: "{{
+      backup_rsync_options
+    + backup_rsync_additional_options | default([])
+    + backup_rsync_compress | ternary(['--compress'], [])
+    + backup_rsync_delete   | ternary(['--delete'],   [])
+  }}"
+
+backup_identifier_suffix: "{{ backup_identifier | ternary(backup_identifier ~ '/', '') }}"
+
+backup_is_local: "{{
+  not backup_remote_connection
+  or backup_remote_connection == 'localhost'
+  or backup_mode == 'archive'
+}}"
+
+backup_postgres_pg_dump_command: "{{ backup_postgres_dockerized | ternary(
+  'docker exec -u postgres ' ~ (
+    backup_postgres_docker_container | default('postgres')
+  ) ~' pg_dump',
+  'sudo -u postgres pg_dump'
+) }}"

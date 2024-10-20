@@ -1,0 +1,41 @@
+---
+
+- name: Init postgresql database backup script
+  when:
+    - backup_postgres_databases | length > 0
+  block:
+
+    - name: Ensure backup scripts folder exists.
+      ansible.builtin.file:
+        path: "{{ backup_conf_path }}"
+        state: directory
+        owner: "{{ backup_user }}"
+        group: "{{ backup_group }}"
+        mode: "0775"
+
+    - name: Ensure log folder exists.
+      ansible.builtin.file:
+        path: "{{ backup_log_base_path }}"
+        state: directory
+        owner: "{{ backup_user }}"
+        group: "{{ backup_group }}"
+        mode: "0775"
+      when: backup_log_base_path
+
+    - name: Ensure database local backup folder exists.
+      ansible.builtin.file:
+        path: "{{ backup_postgres_base_path }}"
+        state: directory
+        owner: "{{ backup_user }}"
+        group: "{{ backup_group }}"
+        mode: "0775"
+      become: true
+
+
+    - name: Template postgresql backup script to server
+      ansible.builtin.template:
+        src: backup-postgres.sh.j2
+        dest: "{{ backup_conf_path }}/backup-postgres.sh"
+        owner: "{{ backup_user }}"
+        group: "{{ backup_group }}"
+        mode: "0744"
