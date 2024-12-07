@@ -148,6 +148,7 @@ This will create a single `backup.sh` script.
   gather_subset:
     - "!all"
     - "!min"
+    - env
     - user
 
   vars:
