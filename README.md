@@ -197,11 +197,12 @@ This will create a single `backup.sh` script.
 
     - name: Init backup script wrapper
       vars:
-        has_postgres: "{{ backup_postgres_databases | length > 0 }}"
+        has_postgres: "{{ backup_postgres_databases | default([]) | length > 0 }}"
         backup_conf_names: "{{
           backup_items | default([]) |
           community.general.json_query('[*].backup_conf_name')
         }}"
+      when: (backup_conf_names | length > 1) or has_postgres
       ansible.builtin.include_role: { name: djuuu.backup, tasks_from: wrapper-script }
 ```
 
