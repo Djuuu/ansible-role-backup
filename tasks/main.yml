@@ -18,14 +18,25 @@
     mode: "0775"
   when: backup_log_base_path
 
-- name: "Ensure local backup folder exists: {{ backup_remote_base_path ~ '/' ~ backup_identifier_suffix }}"
+- name: "Ensure local backup folder exists: {{ backup_local_path }}"
+  vars:
+    backup_local_path: "{{ backup_remote_base_path ~ '/' ~ backup_identifier_suffix }}"
   ansible.builtin.file:
-    path: "{{ backup_remote_base_path }}"
+    path: "{{ backup_local_path }}"
     state: directory
     owner: "{{ backup_user }}"
     group: "{{ backup_group }}"
     mode: "0775"
   when: backup_is_local
+
+- name: Ensure database local backup folder exists.
+  ansible.builtin.file:
+    path: "{{ backup_postgres_base_path }}"
+    state: directory
+    owner: "{{ backup_user }}"
+    group: "{{ backup_group }}"
+    mode: "0775"
+  when: backup_mode == 'postgres'
 
 - name: "Template backup script to server: {{ backup_conf_name }}"
   ansible.builtin.template:
@@ -42,6 +53,7 @@
     owner: "{{ backup_user }}"
     group: "{{ backup_group }}"
     mode: "0644"
+  when: backup_mode != 'postgres'
 
 - name: Configure backup cron job.
   ansible.builtin.cron:
