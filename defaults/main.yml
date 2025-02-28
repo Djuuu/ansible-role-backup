@@ -27,6 +27,9 @@ backup_rsync_additional_options: []
 backup_rsync_compress: true
 backup_rsync_delete: true
 
+# archive options
+backup_archive_name: "{{ backup_conf_name }}"
+
 # Directory for backup logs
 backup_log_base_path: "{{ backup_conf_path }}/log"
 

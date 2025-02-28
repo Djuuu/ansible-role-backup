@@ -14,7 +14,7 @@ BACKUP_USER={{ backup_user }}
 BACKUP_GROUP={{ backup_group }}
 
 ARCHIVE_DIR="{{ backup_remote_base_path }}/{{ backup_identifier_suffix }}"
-ARCHIVE_FILE="{{ backup_conf_name }}-$(date +'%Y%m%d-%H%M%S').tar.gz"
+ARCHIVE_FILE="{{ backup_archive_name | default(backup_conf_name, true) }}-$(date +'%Y%m%d-%H%M%S').tar.gz"
 
 {% if backup_log_base_path %}
 LOGFILE="{{ backup_log_base_path }}/{{ backup_conf_name }}-$(date +'%Y-%m-%d').log"
@@ -27,7 +27,7 @@ echo "#"
 echo "#  - {{ directory }}"
 {% endfor %}
 echo "#"
-echo "#  -> {{ backup_remote_base_path }}/{{ backup_identifier_suffix }}{{ backup_conf_name }}.tar.gz"
+echo "#  -> {{ backup_remote_base_path }}/{{ backup_identifier_suffix }}{{ backup_archive_name | default(backup_conf_name, true) }}.tar.gz"
 echo "#"
 echo ""
 
