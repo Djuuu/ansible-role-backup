@@ -18,7 +18,7 @@ REMOTE="{{ backup_is_local | ternary('', backup_remote_connection ~ ':') }}"
 REMOTE_DEST="{{ backup_remote_base_path }}/{{ backup_identifier_suffix }}"
 
 {% if backup_log_base_path %}
-LOGFILE={{ backup_log_base_path }}/{{ backup_conf_name }}-$(date +'%Y-%m-%d').log
+LOGFILE="{{ backup_log_base_path }}/{{ backup_conf_name }}-$(date +'%Y-%m-%d').log"
 {% endif %}
 
 echo ""

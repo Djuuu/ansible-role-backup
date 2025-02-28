@@ -18,7 +18,7 @@ BACKUP_USER={{ backup_user }}
 BACKUP_GROUP={{ backup_group }}
 
 {% if backup_log_base_path %}
-LOGFILE={{ backup_log_base_path }}/backup-postgres-$(date +'%Y-%m-%d').log
+LOGFILE="{{ backup_log_base_path }}/backup-postgres-$(date +'%Y-%m-%d').log"
 {% endif %}
 
 echo ""

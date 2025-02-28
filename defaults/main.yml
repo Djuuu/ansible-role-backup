@@ -45,7 +45,7 @@ backup_exclude_name: .backup                    # common exclude file: .backup-{
 # Options to control where the backup is delivered.
 backup_remote_connection: user@backup.example.com
 backup_remote_connection_ssh_options: ''
-backup_remote_base_path: "~/backups"
+backup_remote_base_path: "${HOME}/backups"
 backup_identifier: # optional subdirectory
 
 # Add your server's host key to ensure seamless backup functionality.

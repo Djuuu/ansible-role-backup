@@ -13,11 +13,11 @@
 BACKUP_USER={{ backup_user }}
 BACKUP_GROUP={{ backup_group }}
 
-ARCHIVE_DIR={{ backup_remote_base_path }}/{{ backup_identifier_suffix }}
-ARCHIVE_FILE={{ backup_conf_name }}-$(date +'%Y%m%d-%H%M%S').tar.gz
+ARCHIVE_DIR="{{ backup_remote_base_path }}/{{ backup_identifier_suffix }}"
+ARCHIVE_FILE="{{ backup_conf_name }}-$(date +'%Y%m%d-%H%M%S').tar.gz"
 
 {% if backup_log_base_path %}
-LOGFILE={{ backup_log_base_path }}/{{ backup_conf_name }}-$(date +'%Y-%m-%d').log
+LOGFILE="{{ backup_log_base_path }}/{{ backup_conf_name }}-$(date +'%Y-%m-%d').log"
 {% endif %}
 
 echo ""
@@ -42,8 +42,8 @@ echo -e "$(date +'%Y-%m-%d %T') Backup start" | tee -a "$LOGFILE"
 sudo \
 {% endif %}
 tar \
-  --exclude-from {{ backup_conf_path }}/{{ backup_exclude_name }}-archive-exclude.txt \
-  -czf ${ARCHIVE_DIR}${ARCHIVE_FILE} \
+  --exclude-from "{{ backup_conf_path }}/{{ backup_exclude_name }}-archive-exclude.txt" \
+  -czf "${ARCHIVE_DIR}${ARCHIVE_FILE}" \
   {% for directory in backup_directories %}
   "{{ directory }}" \
   {% endfor %}
@@ -54,7 +54,7 @@ tar \
   {% endif %}
 
 {% if backup_privileged | default(false) %}
-sudo chown ${BACKUP_USER}:${BACKUP_GROUP} ${ARCHIVE_DIR}${ARCHIVE_FILE} 2>&1 | tee -a "$LOGFILE"
+sudo chown ${BACKUP_USER}:${BACKUP_GROUP} "${ARCHIVE_DIR}${ARCHIVE_FILE}" 2>&1 | tee -a "$LOGFILE"
 {% endif %}
 {% endif %}
 
