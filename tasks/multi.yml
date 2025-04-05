@@ -7,9 +7,7 @@
   loop: "{{ backup_item | dict2items }}"
   loop_control:
     loop_var: _var
-  changed_when:
-    (  vars[_var.key] is not defined)
-    or vars[_var.key] != _var.value
+  changed_when: false
 
 
 - name: "Init Backup script: {{ backup_conf_name }}"
@@ -22,6 +20,4 @@
   loop: "{{ backup_item.keys() }}"
   loop_control:
     loop_var: _key
-  changed_when:
-    (  vars[_key ~ '__orig'] is not defined)
-    or vars[_key ~ '__orig'] != vars[_key]
+  changed_when: false
