@@ -16,7 +16,7 @@
     owner: "{{ backup_user }}"
     group: "{{ backup_group }}"
     mode: "0775"
-  when: backup_log_base_path
+  when: backup_log_base_path is truthy
 
 - name: "Ensure local backup folder exists: {{ backup_local_path }}"
   vars:
@@ -75,5 +75,5 @@
     name: "{{ backup_remote_host_name }}"
     key: "{{ backup_remote_host_name }} {{ backup_remote_host_key }}"
   when:
-    - backup_remote_host_name
-    - backup_remote_host_key
+    - backup_remote_host_name is truthy
+    - backup_remote_host_key is truthy

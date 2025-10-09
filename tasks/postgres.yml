@@ -20,7 +20,7 @@
         owner: "{{ backup_user }}"
         group: "{{ backup_group }}"
         mode: "0775"
-      when: backup_log_base_path
+      when: backup_log_base_path is truthy
 
     - name: Ensure database local backup folder exists.
       ansible.builtin.file:
