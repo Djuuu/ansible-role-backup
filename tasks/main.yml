@@ -39,9 +39,11 @@
   when: backup_mode == 'postgres'
 
 - name: "Template backup script to server: {{ backup_conf_name }}"
+  vars:
+    backup_script_name: "backup-{{ backup_conf_name | regex_replace('^backup-', '', ignorecase=True) }}.sh"
   ansible.builtin.template:
     src: "backup-{{ backup_mode }}.sh.j2"
-    dest: "{{ backup_conf_path }}/{{ backup_conf_name }}.sh"
+    dest: "{{ backup_conf_path }}/{{ backup_script_name }}"
     owner: "{{ backup_user }}"
     group: "{{ backup_group }}"
     mode: "0744"

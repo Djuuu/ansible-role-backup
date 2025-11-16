@@ -217,7 +217,7 @@ This will create:
 - a PostgreSQL database backup script:
   - `backup-postgres.sh`
 - and a wrapper script running all aforementioned scripts sequentially:
-  - `backup-all.sh`
+  - `backup.sh`
 
 License
 -------

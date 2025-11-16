@@ -2,8 +2,8 @@
 
 - name: Template backup script wrapper to server
   ansible.builtin.template:
-    src: backup-all.sh.j2
-    dest: "{{ backup_conf_path }}/backup-all.sh"
+    src: backup.sh.j2
+    dest: "{{ backup_conf_path }}/backup.sh"
     owner: "{{ backup_user }}"
     group: "{{ backup_group }}"
     mode: "0744"
@@ -12,9 +12,9 @@
 
 - name: Configure backup wrapper cron job.
   ansible.builtin.cron:
-    name:      "Backup cron job: backup-all"
-    job:       "{{ backup_conf_path }}/backup-all.sh"
-    cron_file: "{{ backup_cron_use_file | default(false) | ternary('backup-all', omit) }}"
+    name:      "Backup cron job: backup"
+    job:       "{{ backup_conf_path }}/backup.sh"
+    cron_file: "{{ backup_cron_use_file | default(false) | ternary('backup', omit) }}"
     user:      "{{ backup_user }}"
     minute: "{{ backup_cron_minute }}"
     hour:   "{{ backup_cron_hour }}"

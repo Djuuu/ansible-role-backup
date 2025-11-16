@@ -1,0 +1,38 @@
+#jinja2: trim_blocks: True, lstrip_blocks: True
+#!/bin/bash
+#
+# {{ ansible_managed }}
+#
+# Backup for simple servers - shell script.
+#
+# @author Julien Tardot, 2024
+
+
+echo ""
+echo "# backup.sh"
+echo "#"
+
+backup_items=(
+  {% if has_postgres | default(false) %}
+  "postgres"
+  {% endif %}
+  {% for conf_name in backup_conf_names %}
+  "{{ conf_name | regex_replace('^backup-', '', ignorecase=True) }}"
+  {% endfor %}
+)
+
+
+for item in "${backup_items[@]}"; do
+  script="./backup-${item}.sh"
+
+  if [[ $# -gt 0 && ! " $* " =~ [[:space:]]${item}[[:space:]] ]]; then
+    continue
+  fi
+
+  if [[ ! -f $script ]]; then
+    echo "Backup script not found: $script"
+    continue
+  fi
+
+  "${script}"
+done
