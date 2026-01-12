@@ -24,18 +24,18 @@
   ansible.builtin.file:
     path: "{{ backup_local_path }}"
     state: directory
-    owner: "{{ backup_user }}"
-    group: "{{ backup_group }}"
-    mode: "0775"
+    owner: "{{ backup_local_dir_user | default(backup_user) }}"
+    group: "{{ backup_local_dir_group | default(backup_group) }}"
+    mode: "{{ backup_local_dir_mode | default('0775') }}"
   when: backup_is_local
 
 - name: Ensure database local backup folder exists.
   ansible.builtin.file:
     path: "{{ backup_postgres_base_path }}"
     state: directory
-    owner: "{{ backup_user }}"
-    group: "{{ backup_group }}"
-    mode: "0775"
+    owner: "{{ backup_postgres_dir_user | default(backup_user) }}"
+    group: "{{ backup_postgres_dir_group | default(backup_group) }}"
+    mode: "{{ backup_postgres_dir_mode | default('0775') }}"
   when: backup_mode == 'postgres'
 
 - name: "Template backup script to server: {{ backup_conf_name }}"
