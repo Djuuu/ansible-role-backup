@@ -21,3 +21,8 @@ backup_postgres_pg_dump_command: "{{ backup_postgres_dockerized | ternary(
   ) ~' pg_dump',
   'sudo -u postgres pg_dump'
 ) }}"
+
+backup_sudo_options: "{{ (ansible_become_user | default('root') != 'root') | ternary(
+  '-u ' ~ (ansible_become_user | default('root')),
+  '')
+}}"

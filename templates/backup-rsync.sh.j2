@@ -40,7 +40,7 @@ echo -e "$(date +'%Y-%m-%d %T') Backup start" | tee -a "$LOGFILE"
 # Backup
 {% if backup_directories | length > 0 %}
 {% if backup_privileged | default(false) %}
-sudo \
+sudo {{ backup_sudo_options }} \
 {% endif %}
 $RSYNC $RSYNC_OPTS \
   {% if backup_remote_connection_ssh_options %}

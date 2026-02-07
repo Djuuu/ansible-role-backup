@@ -42,7 +42,7 @@ echo "$(date +'%Y-%m-%d %T') Backup start" | tee -a "$LOGFILE"
 dump_file="${OUTPUT}/{{ database }}-$(date +'%Y%m%d-%H%M%S').sql"
 echo "$(date +'%Y-%m-%d %T') Backup: {{ database }}" | tee -a "$LOGFILE"
 ${PG_DUMP_CMD} ${PG_OPTS} {{ database }} > ${dump_file}  2> >(tee -a "$LOGFILE" >&2)
-sudo chown ${BACKUP_USER}:${BACKUP_GROUP} ${dump_file} 2>&1 | tee -a "$LOGFILE"
+sudo {{ backup_sudo_options }} chown ${BACKUP_USER}:${BACKUP_GROUP} ${dump_file} 2>&1 | tee -a "$LOGFILE"
 gzip ${dump_file}                                      2>&1 | tee -a "$LOGFILE"
 
 {% endfor %}

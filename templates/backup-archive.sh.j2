@@ -39,7 +39,7 @@ echo -e "$(date +'%Y-%m-%d %T') Backup start" | tee -a "$LOGFILE"
 # Backup
 {% if backup_directories | length > 0 %}
 {% if backup_privileged | default(false) %}
-sudo \
+sudo {{ backup_sudo_options }} \
 {% endif %}
 tar \
   --exclude-from "{{ backup_conf_path }}/{{ backup_exclude_name }}-archive-exclude.txt" \
@@ -54,7 +54,7 @@ tar \
   {% endif %}
 
 {% if backup_privileged | default(false) %}
-sudo chown ${BACKUP_USER}:${BACKUP_GROUP} "${ARCHIVE_DIR}${ARCHIVE_FILE}" 2>&1 | tee -a "$LOGFILE"
+sudo {{ backup_sudo_options }} chown ${BACKUP_USER}:${BACKUP_GROUP} "${ARCHIVE_DIR}${ARCHIVE_FILE}" 2>&1 | tee -a "$LOGFILE"
 {% endif %}
 {% endif %}
 
